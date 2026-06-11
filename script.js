@@ -1,147 +1,120 @@
-* {
-    box-sizing: border-box;
-}
+const tiposSementes = {
+    cenoura: { nome: "Cenoura", emoji: "🥕", custo: 2, recompensa: 5, tempo: 3000 },
+    tomate: { nome: "Tomate", emoji: "🍅", custo: 6, recompensa: 15, tempo: 6000 },
+    melancia: { nome: "Melancia", emoji: "🍉", custo: 12, recompensa: 32, tempo: 10000 }
+};
 
-body {
-    font-family: 'Segoe UI', Arial, sans-serif;
-    background-color: #f7f9f3;
-    color: #333;
-    margin: 0;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
+let moedas = 20; 
+let sementeSelecionada = "cenoura";
+let climaAtual = "Ensolarado"; // Pode ser: Ensolarado, Chuvoso ou Seca
+let modificadorTempo = 1; // Altera a velocidade de crescimento
 
-header {
-    text-align: center;
-    margin-bottom: 20px;
-}
+// Configuração dos lotes (alguns começam bloqueados e têm um preço para liberar)
+let lotes = [
+    { estado: "vazio", vegetal: null, bloqueado: false, preco: 0 },
+    { estado: "vazio", vegetal: null, bloqueado: false, preco: 0 },
+    { estado: "vazio", vegetal: null, bloqueado: false, preco: 0 },
+    { estado: "vazio", vegetal: null, bloqueado: false, preco: 0 },
+    { estado: "vazio", vegetal: null, bloqueado: true, preco: 15 },
+    { estado: "vazio", vegetal: null, bloqueado: true, preco: 15 },
+    { estado: "vazio", vegetal: null, bloqueado: true, preco: 30 },
+    { estado: "vazio", vegetal: null, bloqueado: true, preco: 30 },
+    { estado: "vazio", vegetal: null, bloqueado: true, preco: 50 }
+];
 
-h1 {
-    color: #2e7d32;
-    margin-bottom: 10px;
-}
+// Evento de clima mudando a cada 12 segundos automaticamente
+setInterval(mudarClima, 12000);
+atualizarInterface();
 
-#painel {
-    background-color: #ffffff;
-    padding: 12px 25px;
-    border-radius: 30px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-    font-size: 1.2rem;
-    font-weight: bold;
-    display: flex;
-    gap: 30px;
-}
-
-.moedas { color: #fbc02d; }
-.clima { color: #e67e22; }
-
-main {
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
-    max-width: 900px;
-    width: 100%;
-    align-items: center;
-}
-
-@media (min-width: 768px) {
-    main {
-        flex-direction: row;
-        align-items: flex-start;
-        justify-content: center;
+function mudarClima() {
+    const climas = ["Ensolarado", "Chuvoso", "Seca"];
+    climaAtual = climas[Math.floor(Math.random() * climas.length)];
+    
+    let climaTxt = document.getElementById('clima-texto');
+    
+    if (climaAtual === "Ensolarado") {
+        climaTxt.innerText = "🌤️ Ensolarado (Normal)";
+        modificadorTempo = 1;
+    } else if (climaAtual === "Chuvoso") {
+        climaTxt.innerText = "🌧️ Chuvoso (Mais Rápido!)";
+        modificadorTempo = 0.5; // Corta o tempo de crescimento pela metade
+    } else if (climaAtual === "Seca") {
+        climaTxt.innerText = "🔥 Seca (Mais Lento)";
+        modificadorTempo = 1.8; // Quase dobra o tempo necessário
     }
 }
 
-#loja {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 15px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    width: 100%;
-    max-width: 320px;
+function selecionarSemente(tipo) {
+    sementeSelecionada = tipo;
+    document.querySelectorAll('.btn-semente').forEach(btn => btn.classList.remove('ativa'));
+    document.getElementById(`btn-${tipo}`).classList.add('ativa');
+    const veg = tiposSementes[tipo];
+    document.getElementById('semente-ativa-texto').innerText = `${veg.nome} ${veg.emoji}`;
 }
 
-.opcoes-loja {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+function atualizarInterface() {
+    document.getElementById('moedas-valor').innerText = moedas;
 }
 
-.btn-semente {
-    background-color: #f5f5f5;
-    border: 2px solid #e0e0e0;
-    border-radius: 10px;
-    padding: 10px;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    text-align: left;
-    display: flex;
-    align-items: center;
-    transition: all 0.2s;
+function interagir(id) {
+    let lote = lotes[id];
+    let loteEl = document.getElementById(`lote-${id}`);
+    let iconeEl = document.getElementById(`ico-${id}`);
+    let textoEl = document.getElementById(`txt-${id}`);
+    let dadosVegetal = tiposSementes[sementeSelecionada];
+
+    // Se o lote estiver bloqueado, tenta comprá-lo
+    if (lote.bloqueado) {
+        if (moedas >= lote.preco) {
+            moedas -= lote.preco;
+            lote.bloqueado = false;
+            loteEl.classList.remove('bloqueado');
+            iconeEl.innerText = "🟫";
+            textoEl.innerText = "Vazio";
+            atualizarInterface();
+        } else {
+            alert(`Moedas insuficientes! Você precisa de ${lote.preco} moedas para liberar esta expansão.`);
+        }
+        return;
+    }
+
+    // Mecânica de Plantar
+    if (lote.estado === "vazio") {
+        if (moedas >= dadosVegetal.custo) {
+            moedas -= dadosVegetal.custo;
+            lote.estado = "plantado";
+            lote.vegetal = dadosVegetal;
+            iconeEl.innerText = "🌱";
+            textoEl.innerText = "Regar!";
+            atualizarInterface();
+        } else {
+            alert("Dinheiro insuficiente para essa semente!");
+        }
+    } 
+    // Mecânica de Regar e Crescer
+    else if (lote.estado === "plantado") {
+        lote.estado = "regado";
+        iconeEl.innerText = "💦";
+        textoEl.innerText = "Crescendo...";
+
+        // O tempo agora é multiplicado pelo fator climático atual
+        let tempoCalculado = lote.vegetal.tempo * modificadorTempo;
+
+        setTimeout(() => {
+            lote.estado = "pronto";
+            iconeEl.innerText = lote.vegetal.emoji;
+            iconeEl.classList.add("pronto");
+            textoEl.innerText = "Colher!";
+        }, tempoCalculado);
+    } 
+    // Mecânica de Colher
+    else if (lote.estado === "pronto") {
+        moedas += lote.vegetal.recompensa;
+        lote.estado = "vazio";
+        lote.vegetal = null;
+        iconeEl.innerText = "🟫";
+        iconeEl.classList.remove("pronto");
+        textoEl.innerText = "Vazio";
+        atualizarInterface();
+    }
 }
-
-.btn-semente:hover { background-color: #f0f4c3; }
-.btn-semente.ativa { background-color: #d4edda; border-color: #28a745; }
-
-.emoji-loja { font-size: 2rem; margin-right: 15px; }
-.btn-semente small { font-weight: normal; color: #666; margin-left: auto; text-align: right; }
-
-#campo {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 15px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-}
-
-#fazenda {
-    display: grid;
-    grid-template-columns: repeat(3, 110px);
-    grid-gap: 12px;
-    background-color: #8d6e63;
-    padding: 15px;
-    border-radius: 12px;
-}
-
-.lote {
-    width: 110px;
-    height: 110px;
-    background-color: #5d4037;
-    border: 3px solid #4e342e;
-    border-radius: 8px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.15s;
-    user-select: none;
-}
-
-.lote:hover { transform: scale(1.04); background-color: #6d4c41; }
-
-/* Estilo para Lotes Bloqueados */
-.lote.bloqueado {
-    background-color: #9e9e9e;
-    border-color: #757575;
-}
-.lote.bloqueado:hover {
-    background-color: #e0e0e0;
-}
-
-.icone { font-size: 2.3rem; }
-.status-texto {
-    font-size: 0.7rem;
-    color: #fff;
-    margin-top: 6px;
-    font-weight: bold;
-    background-color: rgba(0, 0, 0, 0.6);
-    padding: 2px 4px;
-    border-radius: 4px;
-    text-align: center;
-}
-
-.pronto { animation: balancar 0.6s infinite alternate ease-in-out; }
-@keyframes balancar { from { transform: rotate(-6deg); } to { transform: rotate(6deg); } }
