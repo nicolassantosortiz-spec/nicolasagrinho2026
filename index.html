@@ -3,53 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fazenda Expandida - Jogo de Agricultura</title>
+    <title>Fazenda Magnata - Mercado Dinâmico</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <header>
-        <h1>🚜 Fazenda Expandida 2.0</h1>
+        <h1>📈 Fazenda Magnata: Edição Mercado</h1>
         <div id="painel">
-            <span class="status-item moedas">🪙 Moedas: <span id="moedas-valor">20</span></span>
-            <span class="status-item clima">🌤️ Clima: <span id="clima-texto">Ensolarado</span></span>
+            <span class="status-item moedas">🪙 Carteira: $<span id="moedas-valor">30</span></span>
         </div>
     </header>
 
     <main>
-        <section id="loja">
-            <h2>Loja de Sementes</h2>
-            <div class="opcoes-loja">
-                <button class="btn-semente ativa" onclick="selecionarSemente('cenoura')" id="btn-cenoura">
-                    <span class="emoji-loja">🥕</span> Cenoura<br>
-                    <small>Custo: 2 | Lucro: 5</small>
-                </button>
-                <button class="btn-semente" onclick="selecionarSemente('tomate')" id="btn-tomate">
-                    <span class="emoji-loja">🍅</span> Tomate<br>
-                    <small>Custo: 6 | Lucro: 15</small>
-                </button>
-                <button class="btn-semente" onclick="selecionarSemente('melancia')" id="btn-melancia">
-                    <span class="emoji-loja">🍉</span> Melancia<br>
-                    <small>Custo: 12 | Lucro: 32</small>
-                </button>
+        <section id="mercado">
+            <h2>📊 Cotação do Mercado (Venda)</h2>
+            <div class="Tabela-precos">
+                <div class="preco-card" id="card-batata">
+                    <span class="emoji-loja">🥔</span> Batata: 
+                    <strong id="preco-batata">$0</strong> <span id="tendencia-batata">--</span>
+                </div>
+                <div class="preco-card" id="card-abóbora">
+                    <span class="emoji-loja">🎃</span> Abóbora: 
+                    <strong id="preco-abóbora">$0</strong> <span id="tendencia-abóbora">--</span>
+                </div>
+                <div class="preco-card" id="card-cacau">
+                    <span class="emoji-loja">🍫</span> Cacau: 
+                    <strong id="preco-cacau">$0</strong> <span id="tendencia-cacau">--</span>
+                </div>
             </div>
-            <p class="info-loja">Selecionada: <strong id="semente-ativa-texto">Cenoura 🥕</strong></p>
+            <p class="aviso-mercado">⚠️ Os preços mudam a cada 7 segundos!</p>
+            
+            <hr>
+            
+            <h3>🌱 Comprar Sementes</h3>
+            <div class="botoes-compra">
+                <button class="btn-semente ativa" onclick="selecionarSemente('batata')" id="btn-batata">🥔 Batata ($4)</button>
+                <button class="btn-semente" onclick="selecionarSemente('abóbora')" id="btn-abóbora">🎃 Abóbora ($10)</button>
+                <button class="btn-semente" onclick="selecionarSemente('cacau')" id="btn-cacau">🍫 Cacau ($25)</button>
+            </div>
         </section>
 
         <section id="campo">
-            <h2>Seus Lotes (Expanda sua Terra!)</h2>
+            <h2>Seu Campo (<span id="semente-ativa-texto">Batata 🥔</span> selecionada)</h2>
             <div id="fazenda">
-                <div class="lote" id="lote-0" onclick="interagir(0)"><span class="icone" id="ico-0">🟫</span><span class="status-texto" id="txt-0">Vazio</span></div>
-                <div class="lote" id="lote-1" onclick="interagir(1)"><span class="icone" id="ico-1">🟫</span><span class="status-texto" id="txt-1">Vazio</span></div>
-                <div class="lote" id="lote-2" onclick="interagir(2)"><span class="icone" id="ico-2">🟫</span><span class="status-texto" id="txt-2">Vazio</span></div>
-                
-                <div class="lote" id="lote-3" onclick="interagir(3)"><span class="icone" id="ico-3">🟫</span><span class="status-texto" id="txt-3">Vazio</span></div>
-                <div class="lote bloqueado" id="lote-4" onclick="interagir(4)"><span class="icone" id="ico-4">🔒</span><span class="status-texto" id="txt-4">Comprar (15)</span></div>
-                <div class="lote bloqueado" id="lote-5" onclick="interagir(5)"><span class="icone" id="ico-5">🔒</span><span class="status-texto" id="txt-5">Comprar (15)</span></div>
-                
-                <div class="lote bloqueado" id="lote-6" onclick="interagir(6)"><span class="icone" id="ico-6">🔒</span><span class="status-texto" id="txt-6">Comprar (30)</span></div>
-                <div class="lote bloqueado" id="lote-7" onclick="interagir(7)"><span class="icone" id="ico-7">🔒</span><span class="status-texto" id="txt-7">Comprar (30)</span></div>
-                <div class="lote bloqueado" id="lote-8" onclick="interagir(8)"><span class="icone" id="ico-8">🔒</span><span class="status-texto" id="txt-8">Comprar (50)</span></div>
+                <div class="lote" onclick="interagir(0)"><span class="icone" id="ico-0">🟫</span><span class="status-texto" id="txt-0">Vazio</span></div>
+                <div class="lote" onclick="interagir(1)"><span class="icone" id="ico-1">🟫</span><span class="status-texto" id="txt-1">Vazio</span></div>
+                <div class="lote" onclick="interagir(2)"><span class="icone" id="ico-2">🟫</span><span class="status-texto" id="txt-2">Vazio</span></div>
+                <div class="lote" onclick="interagir(3)"><span class="icone" id="ico-3">🟫</span><span class="status-texto" id="txt-3">Vazio</span></div>
+                <div class="lote" onclick="interagir(4)"><span class="icone" id="ico-4">🟫</span><span class="status-texto" id="txt-4">Vazio</span></div>
+                <div class="lote" onclick="interagir(5)"><span class="icone" id="ico-5">🟫</span><span class="status-texto" id="txt-5">Vazio</span></div>
             </div>
         </section>
     </main>
