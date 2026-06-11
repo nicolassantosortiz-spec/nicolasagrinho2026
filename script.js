@@ -1,103 +1,147 @@
-// Configurações das plantas disponíveis no jogo
-const tiposSementes = {
-    cenoura: { nome: "Cenoura", emoji: "🥕", custo: 2, recompensa: 5, tempo: 3000 },
-    tomate: { nome: "Tomate", emoji: "🍅", custo: 5, recompensa: 12, tempo: 6000 },
-    melancia: { nome: "Melancia", emoji: "🍉", custo: 10, recompensa: 28, tempo: 12000 }
-};
-
-// Estado da conta do jogador
-let moedas = 15; // Moedas iniciais
-let experiencia = 0;
-let nivel = 1;
-let sementeSelecionada = "cenoura"; // Começa com a cenoura ativa
-
-// Estado dos 9 lotes (vazio, plantado, regado, pronto)
-// Armazena também os dados do vegetal que foi plantado especificamente ali
-let lotes = Array(9).fill(null).map(() => ({
-    estado: "vazio",
-    vegetal: null
-}));
-
-// Executa assim que a página carrega para desenhar as moedas na tela
-atualizarInterface();
-
-// Função da loja para mudar qual semente o jogador quer plantar
-function selecionarSemente(tipo) {
-    sementeSelecionada = tipo;
-    
-    // Atualiza a parte visual dos botões da loja
-    document.querySelectorAll('.btn-semente').forEach(btn => btn.classList.remove('ativa'));
-    document.getElementById(`btn-${tipo}`).classList.add('ativa');
-    
-    // Atualiza o texto informativo
-    const veg = tiposSementes[tipo];
-    document.getElementById('semente-ativa-texto').innerText = `${veg.nome} ${veg.emoji}`;
+* {
+    box-sizing: border-box;
 }
 
-// Atualiza o painel de dinheiro e nível na tela
-function atualizarInterface() {
-    document.getElementById('moedas-valor').innerText = moedas;
-    document.getElementById('nivel-valor').innerText = nivel;
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background-color: #f7f9f3;
+    color: #333;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-// Função principal de clique nos lotes de terra
-function interagir(id) {
-    let lote = lotes[id];
-    let iconeEl = document.getElementById(`ico-${id}`);
-    let textoEl = document.getElementById(`txt-${id}`);
-    let dadosVegetal = tiposSementes[sementeSelecionada];
+header {
+    text-align: center;
+    margin-bottom: 20px;
+}
 
-    // FASE 1: O lote está vazio -> Planta a semente selecionada
-    if (lote.estado === "vazio") {
-        if (moedas >= dadosVegetal.custo) {
-            moedas -= dadosVegetal.custo;
-            
-            lote.estado = "plantado";
-            lote.vegetal = dadosVegetal; // Guarda qual planta está neste pedaço de terra
-            
-            iconeEl.innerText = "🌱";
-            textoEl.innerText = "Regar!";
-            atualizarInterface();
-        } else {
-            alert(`Você não tem moedas suficientes para comprar sementes de ${dadosVegetal.nome}!`);
-        }
-    } 
-    // FASE 2: Está plantado -> Precisa regar para começar a crescer
-    else if (lote.estado === "plantado") {
-        lote.estado = "regado";
-        iconeEl.innerText = "💦";
-        textoEl.innerText = "Crescendo...";
+h1 {
+    color: #2e7d32;
+    margin-bottom: 10px;
+}
 
-        // Inicia o timer baseado no tempo específico do vegetal escolhido
-        setTimeout(() => {
-            lote.estado = "pronto";
-            iconeEl.innerText = lote.vegetal.emoji; // Mostra o fruto final
-            iconeEl.classList.add("pronto"); // Ativa a animação CSS de balanço
-            textoEl.innerText = "Colher!";
-        }, lote.vegetal.tempo);
-    } 
-    // FASE 3: O vegetal cresceu -> Colhe, recebe o dinheiro e limpa o lote
-    else if (lote.estado === "pronto") {
-        // Guarda a recompensa antes de limpar o lote
-        moedas += lote.vegetal.recompensa;
-        experiencia += lote.vegetal.custo * 2; // Ganha XP baseado no valor da semente
+#painel {
+    background-color: #ffffff;
+    padding: 12px 25px;
+    border-radius: 30px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    font-size: 1.2rem;
+    font-weight: bold;
+    display: flex;
+    gap: 30px;
+}
 
-        // Reseta as variáveis do lote de terra para ficar vazio novamente
-        lote.estado = "vazio";
-        lote.vegetal = null;
-        
-        iconeEl.innerText = "🟫";
-        iconeEl.classList.remove("pronto"); // Remove animação
-        textoEl.innerText = "Vazio";
+.moedas { color: #fbc02d; }
+.clima { color: #e67e22; }
 
-        // Verifica se o jogador subiu de nível (Sobe a cada 40 pontos de XP acumulados)
-        if (experiencia >= nivel * 40) {
-            nivel++;
-            experiencia = 0;
-            alert(`🎉 Incrível! Você evoluiu para o Nível ${nivel}! Sua fazenda está prosperando! 🌾`);
-        }
+main {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    max-width: 900px;
+    width: 100%;
+    align-items: center;
+}
 
-        atualizarInterface();
+@media (min-width: 768px) {
+    main {
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: center;
     }
 }
 
+#loja {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    width: 100%;
+    max-width: 320px;
+}
+
+.opcoes-loja {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.btn-semente {
+    background-color: #f5f5f5;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s;
+}
+
+.btn-semente:hover { background-color: #f0f4c3; }
+.btn-semente.ativa { background-color: #d4edda; border-color: #28a745; }
+
+.emoji-loja { font-size: 2rem; margin-right: 15px; }
+.btn-semente small { font-weight: normal; color: #666; margin-left: auto; text-align: right; }
+
+#campo {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+#fazenda {
+    display: grid;
+    grid-template-columns: repeat(3, 110px);
+    grid-gap: 12px;
+    background-color: #8d6e63;
+    padding: 15px;
+    border-radius: 12px;
+}
+
+.lote {
+    width: 110px;
+    height: 110px;
+    background-color: #5d4037;
+    border: 3px solid #4e342e;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+}
+
+.lote:hover { transform: scale(1.04); background-color: #6d4c41; }
+
+/* Estilo para Lotes Bloqueados */
+.lote.bloqueado {
+    background-color: #9e9e9e;
+    border-color: #757575;
+}
+.lote.bloqueado:hover {
+    background-color: #e0e0e0;
+}
+
+.icone { font-size: 2.3rem; }
+.status-texto {
+    font-size: 0.7rem;
+    color: #fff;
+    margin-top: 6px;
+    font-weight: bold;
+    background-color: rgba(0, 0, 0, 0.6);
+    padding: 2px 4px;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.pronto { animation: balancar 0.6s infinite alternate ease-in-out; }
+@keyframes balancar { from { transform: rotate(-6deg); } to { transform: rotate(6deg); } }
